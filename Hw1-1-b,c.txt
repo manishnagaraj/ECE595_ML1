@@ -1,0 +1,2 @@
+The fit mean:-0.03408967580399283 and fit variance:0.9953065189490024
+Best number of bins:13
