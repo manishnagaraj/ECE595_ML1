@@ -47,16 +47,15 @@ print('The fit mean:{} and fit variance:{}'.format(mu, sigma))
 
 #Plot the fitted gaussian curve on top of the two histogram plots using scipy.stats.norm.pdf.
 plt.figure(figsize=(12,8))
-_, bins4, _ = plt.hist(s, bins=4, density=True)
-fit_4 = scipy.stats.norm.pdf(bins4, mu, sigma)
-plt.plot(bins4, fit_4, linewidth=3)
+plt.hist(s, bins=4, density=True)
+fit_plt = scipy.stats.norm.pdf(x, mu, sigma)
+plt.plot(x, fit_plt, linewidth=3)
 plt.title('Histogram with 4 bins with fitted Gaussian curve',fontsize=24)
 plt.show()
 
 plt.figure(figsize=(12,8))
-_, bins1000, _ =  plt.hist(s, bins=1000, density=True)
-fit_1000 = scipy.stats.norm.pdf(bins1000, mu, sigma)
-plt.plot(bins1000, fit_1000, linewidth=3)
+plt.hist(s, bins=1000, density=True)
+plt.plot(x, fit_plt, linewidth=3)
 plt.title('Histogram with 1000 bins with fitted Gaussian curve',fontsize=24)
 plt.show()
 
@@ -86,8 +85,8 @@ plt.show()
 
 # Plot the Gaussian curve fitted to your data on top of your histogram.
 plt.figure(figsize=(12,8))
-_, binsbest, _ = plt.hist(s, bins=best_no_bins, density=True)
-fit_best = scipy.stats.norm.pdf(binsbest, mu, sigma)
-plt.plot(binsbest, fit_best, linewidth=3)
+plt.hist(s, bins=best_no_bins, density=True)
+# fit_best = scipy.stats.norm.pdf(binsbest, mu, sigma)
+plt.plot(x, fit_plt, linewidth=3)
 plt.title('Histogram with m* bins with fitted Guassian curve',fontsize=24)
 plt.show()
