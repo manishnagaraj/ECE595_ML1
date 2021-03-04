@@ -109,7 +109,7 @@ plt.show()
 
 # (g) Implement the gradient descent algorithm with momentum in Python
 
-theta_gd_mom = np.zeros(dim)
+theta_gd_mom = np.ones(dim)
 training_loss = np.zeros(50000)
 XtX = np.matmul(X.T, X)
 dJ_old = np.zeros(dim)
