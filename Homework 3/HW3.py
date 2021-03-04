@@ -136,18 +136,18 @@ for tau in tau_val:
                 curr_pred[i][j]=1
     
     # calulate total positives in ground truth -------- all pixels which are cat ---- ie all pixels with val = 1
-    Total_positives = np.count_nonzero(truth)
+    Total_positives = np.count_nonzero(truth>0.5)
     # calculate total negatives in ground truth ------ all pixels that are 0 
-    Total_negatives = np.count_nonzero(truth==0)
+    Total_negatives = np.count_nonzero(truth<0.5)
     # true positives ---- predicted as 1, and actually 1
     true_positives = 0
     false_positives = 0
     # false_positives ---- predicted as 1, actually 0
     for i in range(M-8):
         for j in range(N-8):
-            if curr_pred[i][j] == 1 and truth[i][j]==1 :
+            if curr_pred[i][j] == 1 and truth[i][j]>0.5 :
                 true_positives = true_positives + 1
-            if curr_pred[i][j] == 1 and truth[i][j]==0 :
+            elif curr_pred[i][j] == 1 and truth[i][j]<0.5 :
                 false_positives = false_positives + 1
     P_d = (true_positives)/Total_positives
     P_f = (false_positives)/ Total_negatives
@@ -158,6 +158,8 @@ for tau in tau_val:
 # plot roc --  P_d_t vs P_f_t
 plt.figure(figsize=(12,8))
 plt.plot(P_f_t, P_d_t, linewidth=3)
+plt.xticks(np.arange(0.0, 1.1, 0.1))
+plt.yticks(np.arange(0.0, 1.1, 0.1))
 plt.ylabel(r"$p_D(\tau)$", fontsize=24)
 plt.xlabel(r"$p_F(\tau)$", fontsize=24)
 plt.title("ROC",fontsize=24)
@@ -184,18 +186,18 @@ for i in range(M-8):
             MAP_pred[i][j]=1
 
 # calulate total positives in ground truth -------- all pixels which are cat ---- ie all pixels with val = 1
-Total_positives = np.count_nonzero(truth)
+Total_positives = np.count_nonzero(truth>0.5)
 # calculate total negatives in ground truth ------ all pixels that are 0 
-Total_negatives = np.count_nonzero(truth==0)
+Total_negatives = np.count_nonzero(truth<0.5)
 # true positives ---- predicted as 1, and actually 1
 true_positives = 0
 false_positives = 0
 # false_positives ---- predicted as 1, actually 0
 for i in range(M-8):
     for j in range(N-8):
-        if MAP_pred[i][j] == 1 and truth[i][j]==1 :
+        if MAP_pred[i][j] == 1 and truth[i][j]>0.5 :
             true_positives = true_positives + 1
-        if MAP_pred[i][j] == 1 and truth[i][j]==0 :
+        elif MAP_pred[i][j] == 1 and truth[i][j]<0.5 :
             false_positives = false_positives + 1
 P_d_MAP = (true_positives)/Total_positives
 P_f_MAP = (false_positives)/ Total_negatives
@@ -203,6 +205,8 @@ P_f_MAP = (false_positives)/ Total_negatives
 plt.figure(figsize=(12,8))
 plt.plot(P_f_t, P_d_t, linewidth=3)
 plt.plot(P_f_MAP, P_d_MAP, 'ro', linewidth=6)
+plt.xticks(np.arange(0.0, 1.1, 0.1))
+plt.yticks(np.arange(0.0, 1.1, 0.1))
 plt.ylabel(r"$p_D(\tau)$", fontsize=24)
 plt.xlabel(r"$p_F(\tau)$", fontsize=24)
 plt.legend(['ROC Curve', 'Bayesian Classifier'])
@@ -238,9 +242,9 @@ for tau in range(-5000, 5000, 100):
     false_positives = 0
     for i in range(M-8):
         for j in range(N-8):
-            if reg_pred[i][j] == 1 and truth[i][j]==1 :
+            if reg_pred[i][j] == 1 and truth[i][j]>0.5 :
                 true_positives = true_positives + 1
-            if reg_pred[i][j] == 1 and truth[i][j]==0 :
+            elif reg_pred[i][j] == 1 and truth[i][j]<0.5 :
                 false_positives = false_positives + 1
     P_d = (true_positives)/Total_positives
     P_f = (false_positives)/ Total_negatives
@@ -251,6 +255,8 @@ for tau in range(-5000, 5000, 100):
 plt.figure(figsize=(12,8))
 plt.plot(P_f_t, P_d_t, linewidth=3)
 plt.plot(P_f_t_reg, P_d_t_reg, 'g',linewidth=3)
+plt.xticks(np.arange(0.0, 1.1, 0.1))
+plt.yticks(np.arange(0.0, 1.1, 0.1))
 plt.ylabel(r"$p_D(\tau)$", fontsize=24)
 plt.xlabel(r"$p_F(\tau)$", fontsize=24)
 plt.legend(['ROC of Likelihood Decision Rule', 'ROC of Regression'])
