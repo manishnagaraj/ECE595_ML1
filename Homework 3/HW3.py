@@ -111,7 +111,7 @@ pD(tau) and the probability of miss pF (tau) as:
 P_d_t = []
 P_f_t = []
 
-tau_MAP = np.log(pi_0/pi_1)
+tau_MAP = (pi_0/pi_1)
 
 # P_c1-----log(p(x|C1)) = -1/2 log(det(sigma_1)) -1/2 (x-mu_1).T 
 # P_c0-----log(p(x|C0)) = -1/2 log(det(sigma_0)) -1/2 (x-mu_0).T 
