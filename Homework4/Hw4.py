@@ -24,8 +24,10 @@ Use CVXPY to minimize this loss function for the dataset I provided.
 def convt(fld):
     return -float(fld[:-1]) if fld.endswith(b'-') else float(fld)
 
-X0_og = np.matrix(np.loadtxt('data/homework4_class0.txt', converters={0: convt, 1: convt}))
-X1_og = np.matrix(np.loadtxt('data/homework4_class1.txt', converters={0: convt, 1: convt}))
+# X0_og = np.matrix(np.loadtxt('data/homework4_class0.txt', converters={0: convt, 1: convt}))
+# X1_og = np.matrix(np.loadtxt('data/homework4_class1.txt', converters={0: convt, 1: convt}))
+X0_og = np.matrix(np.loadtxt('quiz4_data/quiz4_class0.txt', converters={0: convt, 1: convt}))
+X1_og = np.matrix(np.loadtxt('quiz4_data/quiz4_class1.txt', converters={0: convt, 1: convt}))
 on = np.ones((X0_og.shape[0],1))
 X0 = np.hstack((X0_og,on))
 on = np.ones((X1_og.shape[0],1))
@@ -47,8 +49,8 @@ for i in range(50):
 x = np.vstack((X0, X1))
 y = np.vstack((Y0,Y1))
 
-lambd       = 0.0001
-
+# lambd       = 0.0001
+lambd = 0.01
 N = X0.shape[0] + X1.shape[0]
 
 theta       = cvx.Variable((3,1))
@@ -121,7 +123,7 @@ for i in range(N):
         
 print(K[47:52, 47:52])
 
-lambd_2 = 0.001
+lambd_2 = 0.01
 
 alpha = cvx.Variable((100,1))
 loss_knl = -cvx.sum(cvx.multiply(y, K@alpha))\

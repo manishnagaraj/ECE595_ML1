@@ -19,6 +19,7 @@ class MNISTImbalanced():
             self.mnist = datasets.MNIST('/home/min/a/mnagara/Desktop/Pytorch_experiments/Data', train=True, download=True)
         else:
             self.mnist = datasets.MNIST('/home/min/a/mnagara/Desktop/Pytorch_experiments/Data', train=False, download=True)
+            # Equally distributed in test mode
             proportion = 0.5
             n_val = 0
         self.transform=transforms.Compose([
