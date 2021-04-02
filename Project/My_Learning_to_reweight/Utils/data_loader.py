@@ -34,13 +34,15 @@ import pandas as pd
 ############################################################################################
 
 class MNISTImbalanced_Binary():
-    def __init__(self, n_items = 5000, classes=[9, 4], proportion=0.9, n_val=5, random_seed=1, mode="train"):
+    def __init__(self, n_items = 5000, classes=[9, 4], proportion=0.9, val_prop=0.5, n_val=10, random_seed=1, mode="train"):
         if mode == "train":
             self.mnist = datasets.MNIST('/home/min/a/mnagara/Desktop/Pytorch_experiments/Data', train=True, download=True)
         else:
             self.mnist = datasets.MNIST('/home/min/a/mnagara/Desktop/Pytorch_experiments/Data', train=False, download=True)
             n_val = 0
-            
+        
+       
+
         self.transform=transforms.Compose([
                transforms.Resize([32,32]),
                transforms.ToTensor(),
@@ -49,7 +51,11 @@ class MNISTImbalanced_Binary():
         n_class = [0, 0]
         n_class[0] = int(np.floor(n_items*proportion))
         n_class[1] = n_items - n_class[0]
-
+        
+        n_val_class = [0, 0]
+        n_val_class[0] = int(np.floor(n_val*val_prop))
+        n_val_class[1] = n_val - n_val_class[0]
+        # print(n_val_class)
         self.data = []
         self.data_val = []
         self.labels = []
@@ -66,21 +72,21 @@ class MNISTImbalanced_Binary():
             tmp_idx = np.where(label_source == c)[0]
             np.random.shuffle(tmp_idx)
             tmp_idx = torch.from_numpy(tmp_idx)
-            img = data_source[tmp_idx[:n_class[i] - n_val]]
+            img = data_source[tmp_idx[:n_class[i] - n_val_class[i]]]
             self.data.append(img)
             
-            cl = label_source[tmp_idx[:n_class[i] - n_val]]
+            cl = label_source[tmp_idx[:n_class[i] - n_val_class[i]]]
             self.labels.append((cl == classes[0]).float())
 
             if mode == "train":
-                img_val = data_source[tmp_idx[n_class[i] - n_val:n_class[i]]]
+                img_val = data_source[tmp_idx[n_class[i] - n_val_class[i]:n_class[i]]]
                 for idx in range(img_val.size(0)):
                     img_tmp = Image.fromarray(img_val[idx].numpy(), mode='L')
                     img_tmp = self.transform(img_tmp)
 
                     self.data_val.append(img_tmp.unsqueeze(0))
 
-                cl_val = label_source[tmp_idx[n_class[i] - n_val:n_class[i]]]
+                cl_val = label_source[tmp_idx[n_class[i] - n_val_class[i]:n_class[i]]]
                 self.labels_val.append((cl_val == classes[0]).float())
 
         self.data = torch.cat(self.data, dim=0)
@@ -261,7 +267,7 @@ class MNISTUniformNoisy_Binary():
 ################################################################################################
 ################################################################################################
     
-def get_mnist_loader(hp, mode, proportion):
+def get_mnist_loader(hp, mode, proportion, val_proportion=[0.5]):
     """Build and return data loader."""
     batch_size = hp['batch_size']
     n_items = hp['n_items']
@@ -271,8 +277,9 @@ def get_mnist_loader(hp, mode, proportion):
     
     if mode == 'binary_imb':
          prop = proportion[0]
+         val_prop = val_proportion[0]
          classes = hp['classes']
-         dataset = MNISTImbalanced_Binary(classes=classes, n_items=n_items, proportion=prop, n_val=n_val,mode=train_test)
+         dataset = MNISTImbalanced_Binary(classes=classes, n_items=n_items, proportion=prop, val_prop=val_prop, n_val=n_val,mode=train_test)
          if train_test == 'train':
              shuffle = True
     elif mode == 'multi_imb':

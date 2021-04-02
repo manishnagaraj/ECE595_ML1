@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['Homework1-Exercise1.py', 'Homework1-Exercise2.py', 'Hw1-1-b,c.txt']
+recent_files = ['Homework5/homework5.py.py']
 

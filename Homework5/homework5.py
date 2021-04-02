@@ -115,7 +115,7 @@ for i in range(Nset.size):
     Num = Nset[i]
     x[:,i] = stats.binom.rvs(Num, p_bern, size=10000)/Num
     # calculate the probability of P(X_N-mu)
-    prob_simulate[i]  = np.mean((np.abs(x[:,i]-p_bern)>epsilon_bern).astype(float))
+    prob_simulate[i]  = np.mean((np.abs(x[:,i]-p_bern)>=epsilon_bern).astype(float))
     # Chernoff
     prob_chernoff[i] = math.pow(2,(-1*beta*Num))
     # Hoeffding

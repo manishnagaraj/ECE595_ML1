@@ -6,44 +6,44 @@ Created on Wed Mar 31 19:22:46 2021
 @author: mnagara
 """
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-import IPython
-import gc
-import matplotlib
 import numpy as np
+import sys
 
-from models import LeNetBinary
+from .models import LeNetBinary
 
 class ReweightingAlgorithm():
-    def __init__(self, hyperparameters, net, device, data_loader, test_loader):
+    def __init__(self, hyperparameters, net, device, task='BinaryClassification'):
         self.hyperparameters = hyperparameters
         self.net = net
         self.device = device
-        self.data_loader = data_loader
-        self.test_loader = test_loader
         self.opt = torch.optim.SGD(self.net.params(),lr=self.hyperparameters["lr"])  
-    
-    def learn(self, plot_step):
+        self.task = task
+        self.acc_log = None
+        
+    def learn(self, data_loader, test_loader, plot_step=100):
         accuracy_log = []
         
-        val_data = self.data_loader.dataset.data_val.to(self.device)
-        val_labels = self.data_loader.dataset.labels_val.to(self.device)
+        val_data = data_loader.dataset.data_val.to(self.device)
+        val_labels = data_loader.dataset.labels_val.to(self.device)
         
         for i in tqdm(range(self.hyperparameters['num_iterations'])):
             self.net.train()
             # Line 2 get batch of data
-            image, labels = next(iter(self.data_loader))
+            image, labels = next(iter(data_loader))
             image, labels = image.to(self.device), labels.to(self.device)
             # since validation data is small I just fixed them instead of building an iterator
             # initialize a dummy network for the meta learning of the weights
-            meta_net = LeNetBinary(n_out=1)
-            meta_net.load_state_dict(self.net.state_dict())
-            meta_net = meta_net.to(self.device)
-            
+            if self.task == 'BinaryClassification':
+                meta_net = LeNetBinary(n_out=1)
+                meta_net.load_state_dict(self.net.state_dict())
+                meta_net = meta_net.to(self.device)
+            else:
+                print('NOT IMPLEMENTED!!!')
+                sys.exit()                
             # Lines 4 - 5 initial forward pass to compute the initial weighted loss
             y_f_hat  = meta_net(image)
             cost = F.binary_cross_entropy_with_logits(y_f_hat,labels, reduce=False)
@@ -87,7 +87,7 @@ class ReweightingAlgorithm():
                 self.net.eval()
     
                 acc = []
-                for itr,(test_img, test_label) in enumerate(self.test_loader):
+                for itr,(test_img, test_label) in enumerate(test_loader):
                     test_img = test_img.to(self.device)
                     test_label = test_label.to(self.device)
     
@@ -99,3 +99,12 @@ class ReweightingAlgorithm():
                 accuracy = torch.cat(acc,dim=0).mean()
                 accuracy_log.append(np.array([i,accuracy])[None])       
     
+            self.acc_log = np.concatenate(accuracy_log, axis=0)
+            
+        def plot_current_log(self):
+            plt.figure(figsize=(12,8))
+            plt.plot(self.acc_log[:,0],self.acc_log[:,1])
+            plt.ylabel('Accuracy')
+            plt.xlabel('Iteration')
+            plt.grid()
+            plt.show()            

@@ -8,5 +8,6 @@ Created on Mon Mar 29 22:43:09 2021
 
 from .data_loader import get_mnist_loader
 from .models import  LeNetBinary
+from .reweight import ReweightingAlgorithm
 
-__all__ = ['get_mnist_loader', 'LeNetBinary']
+__all__ = ['get_mnist_loader', 'LeNetBinary', 'ReweightingAlgorithm']
