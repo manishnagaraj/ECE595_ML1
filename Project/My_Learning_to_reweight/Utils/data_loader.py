@@ -29,9 +29,87 @@ import numbers
 import math
 import pandas as pd
 
+import pdb
+
 
 ############################################################################################
 ############################################################################################
+class MNISTBalanced_Binary():
+    def __init__(self, n_items = 5000, classes=[9, 4], proportion=0.9, val_prop=0.5, n_val=10, random_seed=1, mode="train"):
+        if mode == "train":
+            self.mnist = datasets.MNIST('/home/min/a/mnagara/Desktop/Pytorch_experiments/Data', train=True, download=True)
+        else:
+            self.mnist = datasets.MNIST('/home/min/a/mnagara/Desktop/Pytorch_experiments/Data', train=False, download=True)
+            n_val = 0
+        
+       
+
+        self.transform=transforms.Compose([
+               transforms.Resize([32,32]),
+               transforms.ToTensor(),
+               transforms.Normalize((0.1307,), (0.3081,))
+            ])
+        n_class = [0, 0]
+        n_class[0] = int(np.floor(n_items*proportion))
+        n_class[1] = n_items - n_class[0]
+        
+        n_val_class = [0, 0]
+        n_val_class[0] = int(np.floor(n_val*val_prop))
+        n_val_class[1] = n_val - n_val_class[0]
+        # print(n_val_class)
+        self.data = []
+        self.data_val = []
+        self.labels = []
+        self.labels_val = []
+
+        if mode == "train":
+            data_source = self.mnist.train_data
+            label_source = self.mnist.train_labels
+        else:
+            data_source = self.mnist.test_data
+            label_source = self.mnist.test_labels
+
+        for i, c in enumerate(classes):
+            tmp_idx = np.where(label_source == c)[0]
+            tmp_idx = torch.from_numpy(tmp_idx)
+            img = data_source[tmp_idx[:n_class[i] - n_val_class[i]]]
+            self.data.append(img)
+            
+            cl = label_source[tmp_idx[:n_class[i] - n_val_class[i]]]
+            self.labels.append((cl == classes[0]).float())
+
+            if mode == "train":
+                img_val = data_source[tmp_idx[n_class[i] - n_val_class[i]:n_class[i]]]
+                for idx in range(img_val.size(0)):
+                    img_tmp = Image.fromarray(img_val[idx].numpy(), mode='L')
+                    img_tmp = self.transform(img_tmp)
+
+                    self.data_val.append(img_tmp.unsqueeze(0))
+
+                cl_val = label_source[tmp_idx[n_class[i] - n_val_class[i]:n_class[i]]]
+                self.labels_val.append((cl_val == classes[0]).float())
+
+        self.data = torch.cat(self.data, dim=0)
+        self.labels = torch.cat(self.labels, dim=0)
+
+        if mode == "train":
+            self.data_val = torch.cat(self.data_val, dim=0)
+            self.labels_val = torch.cat(self.labels_val, dim=0)
+
+    def __len__(self):
+        return self.data.size(0)
+
+    def __getitem__(self, index):
+        img, target = self.data[index], self.labels[index]
+        # doing this so that it is consistent with all other datasets
+        # to return a PIL Image
+        img = Image.fromarray(img.numpy(), mode='L')
+        if self.transform is not None:
+            img = self.transform(img)
+        return img, target
+    
+    
+################################################################################################
 
 class MNISTImbalanced_Binary():
     def __init__(self, n_items = 5000, classes=[9, 4], proportion=0.9, val_prop=0.5, n_val=10, random_seed=1, mode="train"):
@@ -221,9 +299,9 @@ class MNISTUniformNoisy_Binary():
             tmp_idx = torch.from_numpy(tmp_idx)
             img = data_source[tmp_idx[:n_class[i] - n_val]]
             self.data.append(img)
-            
+            # pdb.set_trace()
             cl = label_source[tmp_idx[:n_class[i] - n_val]]
-            noisy_idx = random.sample(range(0,n_class[i] - n_val-1),noisy_prop*(n_class[i] - n_val))
+            noisy_idx = random.sample(range(0,n_class[i] - n_val-1),int(noisy_prop*(n_class[i] - n_val)))
             for noise in noisy_idx:
                 cl[noise] = random.choice(other_labels)
             self.labels.append((cl == classes[0]).float())
@@ -282,6 +360,11 @@ def get_mnist_loader(hp, mode, proportion, val_proportion=[0.5]):
          dataset = MNISTImbalanced_Binary(classes=classes, n_items=n_items, proportion=prop, val_prop=val_prop, n_val=n_val,mode=train_test)
          if train_test == 'train':
              shuffle = True
+    elif  mode == 'binary_bal_unshuffle':
+         prop = proportion[0]
+         val_prop = val_proportion[0]
+         classes = hp['classes']
+         dataset = MNISTBalanced_Binary(classes=classes, n_items=n_items, proportion=prop, val_prop=val_prop, n_val=n_val,mode=train_test)
     elif mode == 'multi_imb':
         dataset = MNISTImbalanced(n_items=n_items, proportion=proportion, n_val=n_val, mode=train_test)
         if train_test == 'train':
