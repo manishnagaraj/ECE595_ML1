@@ -6,5 +6,5 @@ save_non_project_files = False
 
 [main]
 version = 0.2.0
-recent_files = ['Binary_Imbalanced_Mnist.py', 'Utils/reweight.py', 'Utils/data_loader.py', 'Utils/creating_targeted_noise.py', 'Utils/models.py']
+recent_files = ['Binary_Imbalanced_Mnist.py', 'creating_targeted_noise.py']
 
